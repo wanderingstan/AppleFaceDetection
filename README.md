@@ -8,7 +8,7 @@ In iOS11, Apple introduces [CoreML](https://developer.apple.com/documentation/co
 
 Now added detection of all landmarks within the face.
 
-<img src="https://github.com/Weijay/AppleFaceDetection/blob/master/resources/CameraMode.jpg" width="270" height="480" />
+![img_0129](https://user-images.githubusercontent.com/673455/27448297-8fc3c9ca-5741-11e7-9696-75c823fccb8e.PNG)
 
 Try it :)
 
