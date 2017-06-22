@@ -60,21 +60,23 @@ class PreviewView: UIView {
         layer.insertSublayer(faceLayer, at: 1)
         
         // Draw the landmarks
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.nose)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.noseCrest)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.medianLine)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftEye)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftPupil)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftEyebrow)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEye)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightPupil)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEye)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEyebrow)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.innerLips)!)
-        self.drawLandmarks(in: faceRect, on: faceLayer, faceLandmarkRegion: (face.landmarks?.outerLips)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.nose)!, isClosed:false)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.noseCrest)!, isClosed:false)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.medianLine)!, isClosed:false)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftEye)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftPupil)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.leftEyebrow)!, isClosed:false)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEye)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightPupil)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEye)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEyebrow)!, isClosed:false)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.innerLips)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.outerLips)!)
     }
     
-    func drawLandmarks(in rect: CGRect, on targetLayer:CALayer, faceLandmarkRegion: VNFaceLandmarkRegion2D) {
+    func drawLandmarks(on targetLayer:CALayer, faceLandmarkRegion: VNFaceLandmarkRegion2D, isClosed: Bool = true) {
+        
+        let rect: CGRect = targetLayer.frame
         var points: [CGPoint] = []
         for i in 0..<faceLandmarkRegion.pointCount {
             let point = faceLandmarkRegion.point(at: i)
@@ -82,8 +84,9 @@ class PreviewView: UIView {
             points.append(p)
         }
         
-        let landmarkLayer = self.drawPointsOnLayer(rect: rect, landmarkPoints: points)
+        let landmarkLayer = self.drawPointsOnLayer(rect: rect, landmarkPoints: points, isClosed: isClosed)
         
+        // Change scale, coordinate systems, and mirroring
         landmarkLayer.transform = CATransform3DMakeAffineTransform(
             CGAffineTransform.identity
                 .translatedBy(x: rect.width, y: 0)
@@ -92,15 +95,17 @@ class PreviewView: UIView {
                 .scaledBy(x: 1, y: -1)
                 .translatedBy(x: 0, y: -1)
         )
-        
         targetLayer.insertSublayer(landmarkLayer, at: 1)
     }
     
-    func drawPointsOnLayer(rect:CGRect, landmarkPoints: [CGPoint]) -> CALayer {
+    func drawPointsOnLayer(rect:CGRect, landmarkPoints: [CGPoint], isClosed: Bool = true) -> CALayer {
         let linePath = UIBezierPath()
         linePath.move(to: landmarkPoints.first!)
         for point in landmarkPoints.dropFirst() {
             linePath.addLine(to: point)
+        }
+        if isClosed {
+            linePath.addLine(to: landmarkPoints.first!)
         }
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
