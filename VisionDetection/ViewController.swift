@@ -167,18 +167,17 @@ class ViewController: UIViewController {
         do {
             var defaultVideoDevice: AVCaptureDevice?
             
-            // Choose the back dual camera if available, otherwise default to a wide angle camera.
-            if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: AVMediaType.video, position: .back) {
+            // Choose front camera if possible.
+            if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front) {
+                defaultVideoDevice = frontCameraDevice
+            }
+            else if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: AVMediaType.video, position: .back) {
                 defaultVideoDevice = dualCameraDevice
             }
-                
             else if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .back) {
                 defaultVideoDevice = backCameraDevice
             }
                 
-            else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front) {
-                defaultVideoDevice = frontCameraDevice
-            }
             
             let videoDeviceInput = try AVCaptureDeviceInput(device: defaultVideoDevice!)
             
@@ -368,30 +367,20 @@ extension ViewController {
 
 extension ViewController {
     func setupVision() {
-        let faceDetectionRequest = VNDetectFaceRectanglesRequest(completionHandler: self.handleFaces)
-        self.requests = [faceDetectionRequest]
+//        let faceDetectionRequest = VNDetectFaceRectanglesRequest(completionHandler: self.handleFaces)
+        let faceLandmarksDetectionRequest = VNDetectFaceLandmarksRequest(completionHandler: self.handleFacesLandmarks)
+        
+        self.requests = [faceLandmarksDetectionRequest]
+        
     }
     
-    func handleFaces(request: VNRequest, error: Error?) {
+    func handleFacesLandmarks(request: VNRequest, error: Error?) {
         DispatchQueue.main.async {
-            //perform all the UI updates on the main queue
+            self.previewView.removeMask()
             guard let results = request.results as? [VNFaceObservation] else { return }
-            self.drawVisionRequestResults(results)
-        }
-    }
-    
-    func drawVisionRequestResults(_ results: [VNFaceObservation]) {
-        print("face count = \(results.count) ")
-        previewView.removeMask()
-        
-        let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -self.view.frame.height)
-        
-        let translate = CGAffineTransform.identity.scaledBy(x: self.view.frame.width, y: self.view.frame.height)
-        
-        for face in results {
-            // The coordinates are normalized to the dimensions of the processed image, with the origin at the image's lower-left corner.
-            let facebounds = face.boundingBox.applying(translate).applying(transform)
-            previewView.drawLayer(in: facebounds)
+            for face in results {
+                self.previewView.drawFaceWithLandmarks(face: face)
+            }
         }
     }
 }

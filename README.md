@@ -6,6 +6,8 @@ or [Mobile Vision](https://developers.google.com/vision/face-detection-concepts)
 
 In iOS11, Apple introduces [CoreML](https://developer.apple.com/documentation/coreml). With the **Vision Framework**, it's much easier to detect human faces in real time :D
 
+Now added detection of all landmarks within the face.
+
 <img src="https://github.com/Weijay/AppleFaceDetection/blob/master/resources/CameraMode.jpg" width="270" height="480" />
 
 Try it :)
