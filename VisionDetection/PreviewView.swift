@@ -72,6 +72,7 @@ class PreviewView: UIView {
         self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.rightEyebrow)!, isClosed:false)
         self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.innerLips)!)
         self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.outerLips)!)
+        self.drawLandmarks(on: faceLayer, faceLandmarkRegion: (face.landmarks?.faceContour)!, isClosed: false)        
     }
     
     func drawLandmarks(on targetLayer:CALayer, faceLandmarkRegion: VNFaceLandmarkRegion2D, isClosed: Bool = true) {
